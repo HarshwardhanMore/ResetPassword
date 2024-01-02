@@ -13,10 +13,21 @@ const allowedOrigins = [
   ];
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended:false }));
+
+app.set('view engine', 'ejs');
+
 
 app.use(require('./routes'));
+
+
+app.get('/', (req, res) => {
+    res.send("Im live");
+})
 
 
 // const corsOptions ={

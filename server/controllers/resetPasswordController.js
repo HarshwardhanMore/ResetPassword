@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const resetPasswordService = require('../services/resetPasswordService');
 const {buildResponce} = require('../helpers/buildResponce');
+const searchOperation = require("../helpers/searchOperation");
 
 
 let user = {
@@ -18,9 +19,16 @@ exports.resetPasswordGet = async (req, res) => {
     
     
     // check if this id exist in database
-    if(id != user.id){
-        res.send("Invalid Id");
-        return ;
+    // if(id != user.id){
+    //     res.send("Invalid Id");
+    //     return ;
+    // }
+
+    const user = await searchOperation.findUserById(id);
+    console.log("fetchedUser : "+ user);
+    if(user == null){
+        console.log("invalid id");
+        return;
     }
 
     // we have valid id and user
@@ -29,10 +37,11 @@ exports.resetPasswordGet = async (req, res) => {
         const payload = jwt.verify(token, secret); // if this succeeds then below code runs else catches error
         res.render('reset-password', {email: user.email});
     } catch (error) {
-        console.log("Err in reset pass"+error.message);
+        console.log("Error in reset password "+error.message);
         res.send(error.message);
     }
 
+    console.log("reset password executed");
 }
 
 exports.resetPasswordPost = async (req, res) => {

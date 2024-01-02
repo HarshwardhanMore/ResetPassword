@@ -1,16 +1,16 @@
-
-
 const jwt = require('jsonwebtoken');
 const db = require('../models');
-const config = require('../config')
+const config = require('../config');
+const searchOperation = require("../helpers/searchOperation");
+const sendMail = require("../helpers/sendMail");
+
 const User = db.user;
 
-
-let user = {
-    id: "abc",
-    email: "harshawardhanmore14@gmail.com",
-    password: "abc"
-}
+// let user = {
+//     id: "abc",
+//     email: "harshawardhanmore14@gmail.com",
+//     password: "abc"
+// }
 
 exports.forgotPassword = async ({email})=>{
 
@@ -19,10 +19,15 @@ exports.forgotPassword = async ({email})=>{
     // console.log(email);
 
     
-    
     // check user exist in database
-    if(email != user.email){
-        res.send("user does not exist");
+    // if(email != user.email){
+    //     res.send("user does not exist");
+    //     return;
+    // }
+    const user = await searchOperation.findUserByEmail(email);
+    console.log("fetchedUser : "+ user);
+    if(user == null){
+        console.log("user does not exist");
         return;
     }
 
@@ -34,6 +39,7 @@ exports.forgotPassword = async ({email})=>{
     }
     const token = jwt.sign(payload, secret, {expiresIn: '15m'});
     const link = `${config.HOST_URL}/user/resetPassword/${user.id}/${token}`; // send this link to client email
+    // await sendMail.resetPassword(email);
     console.log(link);
     // res.send("Link has been sent successfully");
     // console.log(link);

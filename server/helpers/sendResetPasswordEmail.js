@@ -1,4 +1,8 @@
 const nodemailer = require("nodemailer");
+
+const fs = require("fs");
+const handlebars = require("handlebars");
+
 require("dotenv").config();
 
 
@@ -6,8 +10,8 @@ require("dotenv").config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // `true` for port 465, `false` for all other ports
+  port: 465,
+  secure: true, // `true` for port 465, `false` for all other ports
   auth: {
     user: process.env.USER_EMAIL_ID,
     pass: process.env.USER_PASSWORD,
@@ -17,16 +21,24 @@ const transporter = nodemailer.createTransport({
 
 const sendResetPasswordEmail = async (receiver, link)=>{
 
+  const source = fs.readFileSync("./helpers/temp.html", 'utf-8').toString();
+  const template = handlebars.compile(source);
+  const replacements = {
+    link: link,
+  }
+  const htmlToSend = template(replacements);
+
   const mailOptions = {
     from: {
-        name: "Harshwardhan More",
+        name: "ProducTry",
         address: process.env.USER_EMAIL_ID
     },
     to: [receiver],
     subject: "Reset Password For ProducTry",
     text: "Reset Password For ProducTry",
-    html: ` <b2>Click below link to reset password</b2> <br/> 
-            <a class="link" href="${link}">${link}</a>`,
+    html: htmlToSend
+    // html: ` <b2>Click below link to reset password</b2> <br/> 
+    //         <a class="link" href="${link}">${link}</a>`,
   }
 
   try {

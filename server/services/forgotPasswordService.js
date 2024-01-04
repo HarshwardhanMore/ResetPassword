@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../models');
 const config = require('../config');
 const searchOperation = require("../helpers/searchOperation");
-const sendMail = require("../helpers/sendMail");
+const sendResetPasswordEmail = require("../helpers/sendResetPasswordEmail");
 
 const User = db.user;
 
@@ -41,6 +41,13 @@ exports.forgotPassword = async ({email})=>{
     const link = `${config.HOST_URL}/user/resetPassword/${user.id}/${token}`; // send this link to client email
     // await sendMail.resetPassword(email);
     console.log(link);
+
+    try {
+        await sendResetPasswordEmail(email, link);
+    } catch (error) {
+        console.log(error.message);
+    }
+
     // res.send("Link has been sent successfully");
     // console.log(link);
 
